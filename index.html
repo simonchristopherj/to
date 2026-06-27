@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simon's Cafe</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;scroll-behavior:smooth;}
+body{
+  background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
+   url('abback.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: white;
+  overflow-x: hidden;
+}
+
+/* NAVBAR */
+header{width:100%;position:fixed;top:0;left:0;z-index:1000;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);}
+nav{width:90%;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:20px 0;}
+.logo{font-size:32px;font-weight:700;color:#d4a762;}
+nav ul{display:flex;list-style:none;}
+nav ul li{margin-left:30px;}
+nav ul li a{color:white;text-decoration:none;font-size:16px;transition:0.3s;}
+nav ul li a:hover{color:#d4a762;}
+
+/* HAMBURGER — hidden on desktop */
+.hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;
+  gap:5px;width:40px;height:40px;cursor:pointer;border-radius:8px;
+  background:transparent;border:none;transition:background 0.2s;}
+.hamburger:hover{background:rgba(255,255,255,0.08);}
+.hamburger span{display:block;width:22px;height:2px;background:#d4a762;
+  border-radius:2px;transition:all 0.35s cubic-bezier(.77,0,.18,1);}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+/* MOBILE OVERLAY NAV */
+.nav-overlay{position:fixed;inset:0;background:rgba(10,6,3,0.97);z-index:999;
+  display:flex;flex-direction:column;justify-content:center;padding:0 40px;
+  opacity:0;pointer-events:none;transform:translateY(-12px);
+  transition:opacity 0.35s ease,transform 0.35s ease;}
+.nav-overlay.open{opacity:1;pointer-events:all;transform:translateY(0);}
+.nav-overlay ul{list-style:none;}
+.nav-overlay ul li{border-bottom:1px solid rgba(255,255,255,0.07);}
+.nav-overlay ul li a{display:flex;justify-content:space-between;align-items:center;
+  padding:20px 0;color:white;text-decoration:none;font-size:26px;font-weight:500;
+  letter-spacing:0.5px;transition:color 0.2s;}
+.nav-overlay ul li a:hover{color:#d4a762;}
+.nav-overlay ul li a::after{content:'↗';font-size:15px;color:#d4a762;opacity:0.6;}
+.nav-overlay-footer{margin-top:48px;}
+.nav-overlay-footer p{font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:10px;}
+.nav-overlay-footer .socials{display:flex;gap:20px;}
+.nav-overlay-footer .socials span{font-size:13px;color:#d4a762;opacity:0.7;cursor:pointer;transition:opacity 0.2s;}
+.nav-overlay-footer .socials span:hover{opacity:1;}
+
+/* HERO */
+.hero{
+  width:100%;
+  height:100vh;
+  background:
+    linear-gradient(rgba(0,0,0,0.65),rgba(0,0,0,0.7)),
+    url('abback.jpg');
+  background-size: cover;
+  background-position: center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:20px;
+}
+.hero-content h1{font-size:75px;margin-bottom:20px;line-height:1.1;}
+.hero-content p{font-size:20px;color:#ddd;margin-bottom:35px;}
+.btn{display:inline-block;padding:15px 40px;background:#d4a762;color:white;border-radius:50px;text-decoration:none;transition:0.3s;font-weight:600;}
+.btn:hover{transform:translateY(-5px);background:#b98745;}
+
+/* COMMON */
+section{padding:100px 8%;}
+.section-title{text-align:center;font-size:50px;margin-bottom:60px;color:#d4a762;}
+
+/* GALLERY */
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;}
+.gallery-grid img{width:100%;height:280px;object-fit:cover;border-radius:18px;transition:0.4s;}
+.gallery-grid img:hover{transform:scale(1.05);}
+
+/* ABOUT */
+.about{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.about img{width:100%;border-radius:20px;}
+.about-text h2{font-size:45px;margin-bottom:20px;}
+.about-text p{color:#ccc;line-height:1.9;font-size:17px;}
+
+/* CONTACT */
+.contact-container{display:grid;grid-template-columns:1fr 1fr;gap:50px;}
+.contact-box{background:rgba(0,0,0,0.4);padding:40px;border-radius:20px;backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,0.1);}
+.contact-box h3{margin-bottom:25px;color:#d4a762;font-size:30px;}
+.contact-box p{margin:18px 0;color:#ccc;}
+form input,form textarea{width:100%;padding:16px;margin-bottom:18px;border:none;border-radius:10px;background:#262626;color:white;}
+form textarea{resize:none;height:140px;}
+form button{width:100%;padding:15px;background:#d4a762;border:none;border-radius:10px;color:white;font-size:16px;cursor:pointer;font-weight:600;}
+
+footer{background:black;text-align:center;padding:25px;color:#aaa;}
+
+/* ORDER TYPE TOGGLE */
+.order-type-wrap{text-align:center;margin-bottom:45px;}
+.order-type-label{font-size:16px;color:#aaa;margin-bottom:16px;}
+.order-type-toggle{display:inline-flex;border:2px solid #d4a762;border-radius:50px;overflow:hidden;}
+.order-type-toggle button{padding:12px 38px;border:none;background:transparent;color:#d4a762;font-size:15px;font-weight:500;cursor:pointer;transition:0.3s;font-family:'Poppins',sans-serif;}
+.order-type-toggle button.active{background:#d4a762;color:white;}
+
+/* MENU LAYOUT */
+.menu-page{display:grid;grid-template-columns:2fr 380px;gap:40px;align-items:start;}
+#menuCategories{display:grid;grid-template-columns:repeat(2,1fr);gap:25px;}
+.menu-category{background:#3b2416;border-radius:20px;padding:25px;}
+.category-title{color:#d4a762;font-size:22px;margin-bottom:20px;letter-spacing:1px;}
+.menu-item-row{display:grid;grid-template-columns:1fr auto auto;gap:20px;align-items:center;padding:15px 0;border-bottom:1px dashed rgba(255,255,255,.1);}
+.qty-box{display:flex;align-items:center;gap:10px;}
+.qty-box button{width:30px;height:30px;border:none;border-radius:50%;background:#1d120b;color:white;cursor:pointer;font-size:16px;}
+
+/* ORDER TICKET */
+.order-ticket{background:#f3eee8;color:#2f241d;padding:30px;border-radius:8px;position:sticky;top:100px;}
+.order-ticket h2{text-align:center;margin-bottom:25px;font-size:22px;}
+.ticket-line{display:flex;justify-content:space-between;margin:8px 0;font-size:14px;}
+.ticket-empty{color:#888;text-align:center;font-size:14px;}
+.total{display:flex;justify-content:space-between;margin-top:20px;padding-top:20px;border-top:1px solid #aaa;font-size:22px;font-weight:600;}
+.send-btn{width:100%;margin-top:20px;padding:15px;border:none;border-radius:40px;background:#5c3b25;color:white;cursor:pointer;font-size:15px;font-weight:600;font-family:'Poppins',sans-serif;transition:0.3s;}
+.send-btn:hover{background:#3d2718;}
+
+/* DETAILS MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2000;justify-content:center;align-items:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#1e1e1e;border-radius:20px;padding:40px;width:90%;max-width:450px;border:1px solid rgba(212,167,98,0.3);}
+.modal-box h2{color:#d4a762;font-size:26px;margin-bottom:8px;text-align:center;}
+.modal-subtitle{color:#aaa;font-size:14px;text-align:center;margin-bottom:28px;}
+.modal-box input,.modal-box select{width:100%;padding:14px 16px;margin-bottom:16px;border:none;border-radius:10px;background:#2a2a2a;color:white;font-size:15px;font-family:'Poppins',sans-serif;}
+.modal-box select option{background:#2a2a2a;}
+.modal-actions{display:flex;gap:12px;margin-top:8px;}
+.modal-cancel{flex:1;padding:14px;border:2px solid #444;border-radius:10px;background:transparent;color:#aaa;cursor:pointer;font-size:15px;font-family:'Poppins',sans-serif;}
+.modal-confirm{flex:2;padding:14px;border:none;border-radius:10px;background:#d4a762;color:white;cursor:pointer;font-size:15px;font-weight:600;font-family:'Poppins',sans-serif;}
+.modal-confirm:hover{background:#b98745;}
+
+/* CONFIRMATION BANNER */
+.confirm-banner{display:none;position:fixed;top:0;left:0;width:100%;z-index:3000;background:#1a1a1a;border-bottom:3px solid #d4a762;padding:28px 8%;text-align:center;}
+.confirm-banner.show{display:block;}
+.confirm-banner h2{color:#d4a762;font-size:28px;margin-bottom:8px;}
+.confirm-banner p{color:#ccc;font-size:16px;margin-bottom:6px;}
+.confirm-banner .order-num{font-size:22px;font-weight:700;color:white;margin:12px 0;}
+.confirm-banner .close-banner{margin-top:16px;padding:10px 30px;border:2px solid #d4a762;border-radius:30px;background:transparent;color:#d4a762;cursor:pointer;font-size:14px;font-family:'Poppins',sans-serif;}
+.confirm-banner .close-banner:hover{background:#d4a762;color:white;}
+
+/* MOBILE */
+@media(max-width:900px){
+
+  /* Show hamburger, hide desktop links */
+  .hamburger{display:flex;}
+  nav ul{display:none;}
+
+  .logo{font-size:22px;}
+  nav{width:95%;padding:16px 0;}
+
+  .hero-content h1{font-size:40px;}
+
+  .about,.contact-container{grid-template-columns:1fr;}
+
+  .menu-page{grid-template-columns:1fr;}
+  #menuCategories{grid-template-columns:1fr;}
+  .order-ticket{position:static;}
+}
+</style>
+</head>
+<body>
+
+<!-- CONFIRMATION BANNER -->
+<div class="confirm-banner" id="confirmBanner">
+  <h2 id="bannerTitle">✅ Order Placed!</h2>
+  <p id="bannerMsg">We'll reach you soon. Sit back and relax!</p>
+  <div class="order-num" id="bannerOrderNum"></div>
+  <button class="close-banner" onclick="closeBanner()">Back to Menu</button>
+</div>
+
+<!-- DETAILS MODAL -->
+<div class="modal-overlay" id="detailsModal">
+  <div class="modal-box">
+    <h2 id="modalTitle">Dine In Details</h2>
+    <p class="modal-subtitle" id="modalSubtitle">Please fill in your details to place the order</p>
+
+    <!-- DINE IN FIELDS -->
+    <div id="dineFields">
+      <input type="text" id="dineName" placeholder="Your Name" />l̥ō
+      <input type="text" id="tableNo" placeholder="Table Number (e.g. T-5)" />
+      <select id="guestCount">
+        <option value="" disabled selected>Number of Guests</option>
+        <option>1</option><option>2</option><option>3</option>
+        <option>4</option><option>5</option><option>6+</option>
+      </select>
+      <input type="text" id="dineSpecial" placeholder="Special Requests (optional)" />
+    </div>
+
+    <!-- TAKEAWAY FIELDS -->
+    <div id="takeawayFields" style="display:none;">
+      <input type="text" id="takeName" placeholder="Your Name" />
+      <input type="tel" id="takePhone" placeholder="Phone Number" />
+      <input type="text" id="takeTime" placeholder="Pickup Time (e.g. 3:00 PM)" />
+      <input type="text" id="takeSpecial" placeholder="Special Requests (optional)" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmOrder()">Place Order →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE OVERLAY NAV -->
+<div class="nav-overlay" id="navOverlay">
+  <ul>
+    <li><a href="#home" onclick="closeMenu()">Home</a></li>
+    <li><a href="#about" onclick="closeMenu()">About</a></li>
+    <li><a href="#menu" onclick="closeMenu()">Menu</a></li>
+    <li><a href="#gallery" onclick="closeMenu()">Gallery</a></li>
+    <li><a href="#contact" onclick="closeMenu()">Contact</a></li>
+  </ul>
+  <div class="nav-overlay-footer">
+    <p>© 2026 Simon's Cafe</p>
+    <div class="socials">
+      <span>Instagram</span>
+      <span>Facebook</span>
+      <span>WhatsApp</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<header>
+  <nav>
+    <div class="logo">Simon's Cafe</div>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="hamburger" id="burger" onclick="toggleMenu()" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-content">
+    <h1>Fresh Coffee<br>Made With Love</h1>
+    <p>Enjoy premium coffee, desserts, and relaxing vibes at Simon's Cafe.</p>
+    <a href="#menu" class="btn">Explore Menu</a>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <h1 class="section-title">About Us</h1>
+  <div class="about">
+    <img src="c.jpg" alt="Cafe Interior">
+    <div class="about-text">
+      <h2>More Than Just A Coffee</h2>
+      <p>Simon's Cafe was born from a deep love of great coffee and warm conversations. Every cup we serve is carefully crafted with the finest ingredients.</p>
+      <br>
+      <p>We believe a great cafe is more than just a place to drink coffee — it is a place to pause, connect, and feel at home. Come experience the warmth of Simon's Cafe.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu">
+  <h1 class="section-title">Our Menu</h1>
+
+  <!-- ORDER TYPE TOGGLE -->
+  <div class="order-type-wrap">
+    <p class="order-type-label">How would you like your order?</p>
+    <div class="order-type-toggle">
+      <button id="btnDine" class="active" onclick="setOrderType('Dine In')">🍽 Dine In</button>
+      <button id="btnTakeaway" onclick="setOrderType('Takeaway')">🥡 Takeaway</button>
+    </div>
+  </div>
+
+  <div class="menu-page">
+    <div id="menuCategories"></div>
+    <div class="order-ticket">
+      <h2>YOUR ORDER</h2>
+      <div id="ticketItems"><p class="ticket-empty">No items yet</p></div>
+      <div class="total">
+        <span>Total</span>
+        <span id="ticketTotal">₹0</span>
+      </div>
+      <button class="send-btn" onclick="openModal()">Place Order 🛎</button>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <h1 class="section-title">Gallery</h1>
+  <div class="gallery-grid">
+    <img src="gallery1.jpg" alt="Cafe Ambience">
+    <img src="gallery4.jpg" alt="Food Plating">
+    <img src="gallery5.jpg" alt="Cafe Interior">
+    <img src="gallery3.jpg" alt="Desserts">
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <h1 class="section-title">Contact Us</h1>
+  <div class="contact-container">
+    <div class="contact-box">
+      <h3>Visit Us</h3>
+      <p>📍 123 Coffee Lane, Anna Nagar, Chennai</p>
+      <p>📞 +91 98765 43210</p>
+      <p>✉ hello@simonscafe.com</p>
+      <p>⏰ Open Daily: 8AM – 10PM</p>
+    </div>
+    <div class="contact-box">
+      <form class="connect-form"
+        action="https://formsubmit.co/Simonchristopher318@gmail.com"
+        method="POST">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_subject" value="New Contact from Simon's Cafe Website">
+        <input type="text" name="Name" placeholder="Your Name" required>
+        <input type="email" name="Email" placeholder="Your Email" required>
+        <textarea name="Message" placeholder="Your Message" required></textarea>
+        <button type="submit">Send Message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Simon's Cafe. All Rights Reserved.</p>
+</footer>
+
+<!-- HIDDEN ORDER FORM -->
+<form id="orderForm"
+  action="https://formsubmit.co/chrixtosimon@gmail.com"
+  method="POST"
+  style="display:none;">
+  <input type="hidden" name="_captcha" value="false">
+  <input type="hidden" name="_template" value="table">
+  <input type="hidden" name="_subject" value="☕ New Simon's Cafe Order">
+  <input type="hidden" name="Order" id="orderMessage">
+</form>
+
+<script>
+const WHATSAPP_NUMBER = "8122554409";
+let orderType = "Dine In";
+
+const MENU = {
+  "Hot Coffee":[
+    {name:"Cappuccino",price:120},
+    {name:"Latte",price:140},
+    {name:"Espresso",price:90}
+  ],
+  "Fast Food":[
+    {name:"Cheese Burger",price:180},
+    {name:"French Fries",price:110},
+    {name:"Pizza",price:250}
+  ],
+  "Desserts":[
+    {name:"Brownie",price:140},
+    {name:"Caramel Pudding",price:140},
+    {name:"Cheese Cake",price:160}
+  ],
+  "Shakes":[
+    {name:"Vanilla Shake",price:100},
+    {name:"Strawberry Shake",price:120},
+    {name:"Chocolate Shake",price:160}
+  ]
+};
+
+const cart = {};
+
+/* Build menu */
+const categoriesEl = document.getElementById('menuCategories');
+Object.entries(MENU).forEach(([category,items])=>{
+  const div = document.createElement('div');
+  div.className = 'menu-category';
+  div.innerHTML = `
+    <h2 class="category-title">${category}</h2>
+    ${items.map(item=>`
+      <div class="menu-item-row">
+        <div>${item.name}</div>
+        <div>₹${item.price}</div>
+        <div class="qty-box">
+          <button onclick="changeQty('${item.name}',${item.price},-1)">−</button>
+          <span id="qty-${cssSafe(item.name)}">0</span>
+          <button onclick="changeQty('${item.name}',${item.price},1)">+</button>
+        </div>
+      </div>
+    `).join('')}
+  `;
+  categoriesEl.appendChild(div);
+});
+
+function cssSafe(name){ return name.replace(/\s+/g,'-').toLowerCase(); }
+
+function changeQty(name,price,delta){
+  const current = cart[name]?.qty || 0;
+  const next = Math.max(0, current + delta);
+  if(next === 0) delete cart[name];
+  else cart[name] = {qty:next,price};
+  document.getElementById(`qty-${cssSafe(name)}`).textContent = next;
+  renderTicket();
+}
+
+function renderTicket(){
+  const ticketItems = document.getElementById('ticketItems');
+  const totalEl = document.getElementById('ticketTotal');
+  const entries = Object.entries(cart);
+  let total = 0;
+  if(entries.length === 0){
+    ticketItems.innerHTML = '<p class="ticket-empty">No items selected</p>';
+  } else {
+    ticketItems.innerHTML = entries.map(([name,item])=>{
+      total += item.qty * item.price;
+      return `<div class="ticket-line"><span>${item.qty} × ${name}</span><span>₹${item.qty*item.price}</span></div>`;
+    }).join('');
+  }
+  totalEl.textContent = `₹${total}`;
+}
+
+/* Mobile nav */
+function toggleMenu(){
+  document.getElementById('burger').classList.toggle('open');
+  document.getElementById('navOverlay').classList.toggle('open');
+  document.body.style.overflow = document.getElementById('navOverlay').classList.contains('open') ? 'hidden' : '';
+}
+
+function closeMenu(){
+  document.getElementById('burger').classList.remove('open');
+  document.getElementById('navOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* Order type toggle */
+function setOrderType(type){
+  orderType = type;
+  document.getElementById('btnDine').classList.toggle('active', type === 'Dine In');
+  document.getElementById('btnTakeaway').classList.toggle('active', type === 'Takeaway');
+}
+
+/* Modal */
+function openModal(){
+  if(Object.keys(cart).length === 0){ alert("Please add items to your order first!"); return; }
+  if(orderType === 'Dine In'){
+    document.getElementById('modalTitle').textContent = '🍽 Dine In Details';
+    document.getElementById('modalSubtitle').textContent = "Fill in your details and we'll come to your table.";
+    document.getElementById('dineFields').style.display = 'block';
+    document.getElementById('takeawayFields').style.display = 'none';
+  } else {
+    document.getElementById('modalTitle').textContent = '🥡 Takeaway Details';
+    document.getElementById('modalSubtitle').textContent = 'Your order number will be generated after placing.';
+    document.getElementById('dineFields').style.display = 'none';
+    document.getElementById('takeawayFields').style.display = 'block';
+  }
+  document.getElementById('detailsModal').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('detailsModal').classList.remove('open');
+}
+
+function generateOrderNo(){
+  return 'SC-' + Math.floor(1000 + Math.random() * 9000);
+}
+
+function sendOrderEmail(message){
+  document.getElementById("orderMessage").value = message;
+  fetch(document.getElementById("orderForm").action,{
+    method:"POST",
+    body:new FormData(document.getElementById("orderForm"))
+  });
+}
+
+function confirmOrder(){
+  const entries = Object.entries(cart);
+  let total = 0;
+  const lines = entries.map(([name,item])=>{
+    total += item.qty * item.price;
+    return `${item.qty} x ${name} - ₹${item.qty*item.price}`;
+  });
+
+  if(orderType === 'Dine In'){
+    const name = document.getElementById('dineName').value.trim();
+    const table = document.getElementById('tableNo').value.trim();
+    const guests = document.getElementById('guestCount').value;
+    const special = document.getElementById('dineSpecial').value.trim();
+    if(!name || !table || !guests){ alert("Please fill in your Name, Table Number, and Guest count."); return; }
+
+    const message = `Hello Simon's Cafe ☕\n\n🍽 DINE IN ORDER\n\nName: ${name}\nTable No: ${table}\nGuests: ${guests}\n\nOrder:\n${lines.join('\n')}\n\nTotal: ₹${total}${special ? '\n\nSpecial Requests: '+special : ''}`;
+    sendOrderEmail(message);
+    closeModal();
+
+    document.getElementById('bannerTitle').textContent = '✅ Order Placed!';
+    document.getElementById('bannerMsg').textContent = `Thank you, ${name}! We'll reach your table soon. Sit back and relax ☕`;
+    document.getElementById('bannerOrderNum').textContent = '';
+
+  } else {
+    const name = document.getElementById('takeName').value.trim();
+    const phone = document.getElementById('takePhone').value.trim();
+    const time = document.getElementById('takeTime').value.trim();
+    const special = document.getElementById('takeSpecial').value.trim();
+    if(!name || !phone || !time){ alert("Please fill in your Name, Phone Number, and Pickup Time."); return; }
+
+    const orderNo = generateOrderNo();
+    const message = `Hello Simon's Cafe ☕\n\n🥡 TAKEAWAY ORDER\n\nOrder No: ${orderNo}\n\nName: ${name}\nPhone: ${phone}\nPickup Time: ${time}\n\nOrder:\n${lines.join('\n')}\n\nTotal: ₹${total}${special ? '\n\nSpecial Requests: '+special : ''}`;
+    sendOrderEmail(message);
+    closeModal();
+
+    document.getElementById('bannerTitle').textContent = '🎉 Order Confirmed!';
+    document.getElementById('bannerMsg').textContent = `Thank you, ${name}! Your order is being prepared. Show this number when you pick up.`;
+    document.getElementById('bannerOrderNum').textContent = `Order No: ${orderNo}`;
+  }
+
+  // Clear cart
+  Object.keys(cart).forEach(k=>{
+    const el = document.getElementById(`qty-${cssSafe(k)}`);
+    if(el) el.textContent = '0';
+    delete cart[k];
+  });
+  renderTicket();
+
+  document.getElementById('confirmBanner').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function closeBanner(){
+  document.getElementById('confirmBanner').classList.remove('show');
+  window.location.hash = '#menu';
+}
+
+document.getElementById('detailsModal').addEventListener('click',function(e){
+  if(e.target===this) closeModal();
+});
+</script>
+</body>
+</html>
